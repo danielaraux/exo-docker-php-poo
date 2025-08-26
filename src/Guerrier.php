@@ -1,32 +1,73 @@
-<!DOCTYPE html>
-<html lang="fr">
+<?php
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guerrier</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
+require_once 'Character.php';
 
-<body>
-    <header>
+// extends pour hériter de la class Character
+class Guerrier extends Character
+{
 
-    </header>
+    // Attributs privés
+    private string $weapon;
+    private int $weaponDamage;
+    private string $shield;
+    private int $shieldValue;
+
+    // GETTERS
+    public function getWeapon()
+    {
+        return $this->weapon;
+    }
+
+    public function getweaponDamage()
+    {
+        return $this->weaponDamage;
+    }
+
+    public function getShield()
+    {
+        return $this->shield;
+    }
+
+    public function getshieldValue()
+    {
+        return $this->shieldValue;
+    }
 
 
+    // SETTERS
+    public function setWeapon(string $weapon)
+    {
+        $this->weapon = $weapon; // ça va mettre en place la valeur de weapon
+    }
 
-    <main class="min-vh-100">
+    public function setweaponDamage(int $weaponDamage)
+    {
+        $this->weaponDamage = $weaponDamage; // ça va mettre en place la valeur de weaponDamage
+    }
 
-    </main>
+    public function setShield(string $shield)
+    {
+        $this->shield = $shield; // ça va mettre en place la valeur de shield
+    }
 
+    public function setshieldValue(int $shieldValue)
+    {
+        $this->shieldValue = $shieldValue; // ça va mettre en place la valeur de shieldValue
+    }
 
+    // Fonction lancée directement
+    public function __construct(int $health, int $mana, string $weapon, int $weaponDamage, string $shield, int $shieldValue)
+    {
+        parent::__construct($health, $mana); // On fais le construct de Character et on ajoute sa valeur
+        $this->setWeapon($weapon);
+        $this->setweaponDamage($weaponDamage);
+        $this->setShield($shield);
+        $this->setshieldValue($shieldValue);
+    }
 
-    <footer class="mt-auto">
-
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-</body>
-
-</html>
+    // Fonction pour voir les dégats de l'arme
+    public function attack()
+    {
+        return $this->getweaponDamage();
+    }
+}
