@@ -1,32 +1,48 @@
-<!DOCTYPE html>
-<html lang="fr">
+<?php
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
+require_once 'Character.php';
 
-<body>
-    <header>
+class Orc extends Character
+{
+    private int $damageMin;
+    private int $damageMax;
 
-    </header>
+    // GETTERS
+    public function getdamageMin()
+    {
+        return $this->damageMin;
+    }
 
-
-
-    <main class="min-vh-100">
-
-    </main>
+    public function getdamageMax()
+    {
+        return $this->damageMax;
+    }
 
 
+    // SETTERS
+    public function setdamageMin(int $damageMin)
+    {
+        $this->damageMin = $damageMin; // ça va mettre en place la valeur de damageMin
+    }
 
-    <footer class="mt-auto">
+    public function setdamageMax(int $damageMax)
+    {
+        $this->damageMax = $damageMax; // ça va mettre en place la valeur de damageMax
+    }
 
-    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-</body>
 
-</html>
+    // Fonction lancée directement
+    public function __construct(int $health, int $mana, int $damageMin, int $damageMax)
+    {
+        parent::__construct($health, $mana); // On fais le construct de Character et on ajoute sa valeur
+        $this->setdamageMin($damageMin);
+        $this->setdamageMax($damageMax);
+    }
+
+    // Fonction qui retourne un nombre aléatoire entre damageMin et damageMax
+    public function attack()
+    {
+        // return rand(int $getdamageMin, int $getdamageMax) : int
+    }
+}
