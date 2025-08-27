@@ -64,11 +64,10 @@ class Guerrier extends Character
         $this->setShield($shield);
         $this->setshieldValue($shieldValue);
 
-        echo "Vous avez crée un Guerrier avec " . $this->getHealth() . " de Points de vie et " . $this->getMana() . " de Mana. " . "Il a comme arme " . $this->getWeapon() . " qui fait  " . $this->getweaponDamage() . " de dégâts et " . $this->getShield() . " qui a une résistance aux dégâts de " . $this->getshieldValue() . ".";
     }
 
     // Fonction pour voir les dégats de l'arme
-    public function attack()
+    public function attack(): int
     {
         return $this->getweaponDamage();
     }
@@ -78,7 +77,13 @@ class Guerrier extends Character
     // Fonction pour calculer les dégâts subis en tenant compte de la valeur du bouclier
     public function getDamage(int $damage)
     {
-        $realDamage = $damage - $this->getshieldValue();
-        $this->setHealth($this->getHealth() - $realDamage);
+        // $realDamage = $damage - $this->getshieldValue();
+        // if ($realDamage > 0) {
+        // $this->setHealth($this->getHealth() - $realDamage);
+        // }
+
+        $damageReceived = max(0, $damage - $this->getshieldValue());
+        $this->setHealth($this->getHealth() - $damageReceived);
+        return $damageReceived;
     }
 }

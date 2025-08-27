@@ -38,11 +38,12 @@ class Orc extends Character
         parent::__construct($health, $mana); // On fais le construct de Character et on ajoute sa valeur
         $this->setdamageMin($damageMin);
         $this->setdamageMax($damageMax);
+
     }
 
     // Fonction qui retourne un nombre aléatoire entre damageMin et damageMax
-    public function attack()
+    public function attack(): int
     {
-        // return rand(int $getdamageMin, int $getdamageMax) : int
+        return rand($this->getdamageMin(), $this->getdamageMax());
     }
 }
