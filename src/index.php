@@ -154,22 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
             <!-- Box du déroulé du combat -->
-            <?php
-            if (isset($_SESSION['fightWarriorGo'])) { ?>
-                <div class="mt-4">
-                    <div>
-                        <p>Le Guerrier lance une attaque de <?= $_SESSION['warrior']->getweaponDamage() ?> de dégâts ! ⚔️</p>
-                        <p>L'Orc n'a plus que <?= $_SESSION['orc']->getHealth() - $_SESSION['warrior']->getweaponDamage() ?> ❤️</p>
-                    </div>
-                    <div>
-                        <p>L'Orc lance une attaque de <?= $_SESSION['orc']->attack() ?> de dégâts ! 💥</p>
-                        <p>Le bouclier du Guerrier absorbe <?= $_SESSION['warrior']->getDamage($_SESSION['orc']->attack()) ?> 🛡️</p>
-                        <p>Le Guerrier n'a plus que <?= $_SESSION['warrior']->getHealth() ?> ❤️</p>
-                    </div>
-                </div>
 
-
-            <?php } ?>
 
 
 
@@ -200,6 +185,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
     </main>
+
+
+    <?php
+    if (isset($_SESSION['fightWarriorGo'])) { ?>
+
+        <?php while ($_SESSION['warrior']->getHealth() >= 0 && $_SESSION['orc']->getHealth() >= 0) { ?>
+            <div class="mt-4 text-center">
+                <div class="">
+                    <p>Le Guerrier lance une attaque de <?= $_SESSION['warrior']->getweaponDamage() ?> de dégâts ! ⚔️</p>
+                    <p>L'Orc n'a plus que <?= $_SESSION['orc']->getHealth($_SESSION['warrior']->getweaponDamage()) ?> ❤️</p>
+                </div>
+                <div class="mb-5">
+                    <p>L'Orc lance une attaque de <?= $_SESSION['orc']->attack() ?> de dégâts ! 💥</p>
+                    <p>Le bouclier du Guerrier absorbe <?= $_SESSION['warrior']->getDamage($_SESSION['orc']->attack()) ?> 🛡️</p>
+                    <p>Le Guerrier n'a plus que <?= $_SESSION['warrior']->getHealth() ?> ❤️</p>
+                </div>
+            </div>
+        <?php } ?>
+    <?php } ?>
 
     <footer class="mt-auto d-flex justify-content-center bg-dark">
         <h2 class="text-light">BATTLE DROME</h2>
