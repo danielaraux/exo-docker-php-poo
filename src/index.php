@@ -10,26 +10,6 @@ session_start();
 // Pour afficher l'action qu'on fait avec les boutons qui sont de type POST
 // var_dump($_POST);
 
-// 1. On veut que lorsqu'on arrive sur la page, "Qui commence ?" et "Fight !" soit désactivé
-// 2. Qui commence sera activé lorsque l'orc et le guerrier seront crée et se désactivera si il désigne que le guerrier ou l'orc commence.
-
-// 3. Fight soit activé lorsque l'orc et le guerrier sont crée ainsi que le dé ait choisit l'orc ou le guerrier qui commence.
-// /!\ Le fight doit-il être pressé une fois et que les actions s'enchainent ou être appuyé à chaque action
-
-
-// 4. Fight doit suivre l'énoncé et infliger les dégats et récapituler la vie des personnages
-
-// 5. Le fight doit s'arrêter lorsqu'un des deux personnages n'a plus de vie et afficher un message avec le gagnant.
-
-// 6. Essayer de rendre cela beau et responsive.
-
-
-
-
-// Variables qui désactivent les boutons Fight et Qui commence
-$disabledFight = '';
-$disabledStart = '';
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Pour afficher les variables de session
@@ -39,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         switch ($_POST['action']) {
             case 'create-warrior';
                 if (!isset($_SESSION['warrior'])) {
-                    $warrior = new Guerrier(2000, 500, "Epée Modeste", 250, "Bouclier Rustique", 600);
+                    $warrior = new Guerrier(2000, 500, "Epée Modeste", 250, "Bouclier Rustique", 100);
                     $_SESSION['warrior'] = $warrior; // On stocke la valeur de $warrior dans $_SESSION['warrior'] car sinon ça n'affiche pas plusieurs cards
                 }
                 break;
@@ -48,27 +28,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (!isset($_SESSION['orc'])) {
                     $orc = new Orc(1500, 200, 100, 400);
                     $_SESSION['orc'] = $orc;
+                    $_SESSION['orcAttack'] = $_SESSION['orc']->attack();
                 }
                 break;
 
             case 'decide':
-                // echo "Je determine qui commence";
-                // A CONTINUER !!!
                 $tryWarrior = rand(1, 6);
                 $tryOrc = rand(1, 6);
                 if ($tryWarrior < $tryOrc) {
                     $_SESSION['whoStarts'] = "Le Guerrier commence !";
+                    $_SESSION['fightWarrior'] = "";
                 } elseif ($tryOrc < $tryWarrior) {
                     $_SESSION['whoStarts'] = "L'Orc commence !";
                 } else {
                     $_SESSION['whoStarts'] = "Egalité, relancez le dé";
-                    $disabledFight = "disabled";
                 }
+
+
+
                 break;
 
             case 'battle':
-                echo "Je lance le combat";
-
+                if (isset($_SESSION['fightWarrior'])) {
+                    $_SESSION['fightWarriorGo'] = "";
+                }
 
                 break;
 
@@ -128,12 +111,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <form action="" method="POST">
                 <input type="hidden" name="action" value="decide">
-                <button type="submit" class="btn btn-secondary text-light m-2" <?= $disabledStart ?>>Qui commence ?</button>
+                <button type="submit" class="btn btn-secondary text-light m-2">Qui commence ?</button>
             </form>
 
             <form action="" method="POST">
                 <input type="hidden" name="action" value="battle">
-                <button type="submit" class="btn btn-danger text-light m-2" <?= $disabledFight ?>>Fight !</button>
+                <button type="submit" class="btn btn-danger text-light m-2">Fight !</button>
             </form>
 
             <form action="" method="POST">
@@ -151,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <div class="d-flex justify-content-around">
 
-
+            <!-- Card du Guerrier -->
             <?php
             if (isset($_SESSION['warrior'])) { ?>
                 <div class="card" style="width: 20rem;">
@@ -169,6 +152,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <?php } ?>
 
+
+            <!-- Box du déroulé du combat -->
+            <?php
+            if (isset($_SESSION['fightWarriorGo'])) { ?>
+                <div class="mt-4">
+                    <div>
+                        <p>Le Guerrier lance une attaque de <?= $_SESSION['warrior']->getweaponDamage() ?> de dégâts ! ⚔️</p>
+                        <p>L'Orc n'a plus que <?= $_SESSION['orc']->getHealth() - $_SESSION['warrior']->getweaponDamage() ?> ❤️</p>
+                    </div>
+                    <div>
+                        <p>L'Orc lance une attaque de <?= $_SESSION['orc']->attack() ?> de dégâts ! 💥</p>
+                        <p>Le bouclier du Guerrier absorbe <?= $_SESSION['warrior']->getDamage($_SESSION['orc']->attack()) ?> 🛡️</p>
+                        <p>Le Guerrier n'a plus que <?= $_SESSION['warrior']->getHealth() ?> ❤️</p>
+                    </div>
+                </div>
+
+
+            <?php } ?>
+
+
+
+
+
+
+
+            <!-- Box de l'Orc -->
             <?php
             if (isset($_SESSION['orc'])) { ?>
                 <div class="card" style="width: 20rem;">

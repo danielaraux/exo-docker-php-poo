@@ -17,7 +17,7 @@ class Character
     // Getter mana
     public function getMana()
     {
-        return $this->mana; // ça va retourner la valeur de health
+        return $this->mana; // ça va retourner la valeur de mana
     }
 
     // Setter health

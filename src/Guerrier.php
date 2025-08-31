@@ -63,7 +63,6 @@ class Guerrier extends Character
         $this->setweaponDamage($weaponDamage);
         $this->setShield($shield);
         $this->setshieldValue($shieldValue);
-
     }
 
     // Fonction pour voir les dégats de l'arme
@@ -74,16 +73,13 @@ class Guerrier extends Character
 
 
 
-    // Fonction pour calculer les dégâts subis en tenant compte de la valeur du bouclier
+    // Fonction pour calculer et retourner les dégâts absorbés par le bouclier
     public function getDamage(int $damage)
     {
-        // $realDamage = $damage - $this->getshieldValue();
-        // if ($realDamage > 0) {
-        // $this->setHealth($this->getHealth() - $realDamage);
-        // }
+        $absorbed = min($damage, $this->getshieldValue());
+        $damageReceived = $damage - $absorbed;
 
-        $damageReceived = max(0, $damage - $this->getshieldValue());
         $this->setHealth($this->getHealth() - $damageReceived);
-        return $damageReceived;
+        return $absorbed;
     }
 }
