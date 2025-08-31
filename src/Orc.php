@@ -50,7 +50,6 @@ class Orc extends Character
     public function getDamageOrc(int $damage)
     {
         $newHealth = $this->getHealth() - $damage;
-
         $this->setHealth($newHealth);
         return $newHealth;
     }

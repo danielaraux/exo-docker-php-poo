@@ -1,26 +1,18 @@
 <?php
-
 require_once 'Character.php';
 require_once 'Guerrier.php';
 require_once 'Orc.php';
 
-
 session_start();
-
-// Pour afficher l'action qu'on fait avec les boutons qui sont de type POST
-// var_dump($_POST);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    // Pour afficher les variables de session
-    // var_dump($_SESSION);
-
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
-            case 'create-warrior';
+            case 'create-warrior':
                 if (!isset($_SESSION['warrior'])) {
                     $warrior = new Guerrier(2000, 500, "Epée Modeste", 250, "Bouclier Rustique", 100);
-                    $_SESSION['warrior'] = $warrior; // On stocke la valeur de $warrior dans $_SESSION['warrior'] car sinon ça n'affiche pas plusieurs cards
+                    $_SESSION['warrior'] = $warrior;
                 }
                 break;
 
@@ -28,39 +20,81 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (!isset($_SESSION['orc'])) {
                     $orc = new Orc(1500, 200, 100, 400);
                     $_SESSION['orc'] = $orc;
-                    $_SESSION['orcAttack'] = $_SESSION['orc']->attack();
                 }
                 break;
 
             case 'decide':
                 $tryWarrior = rand(1, 6);
                 $tryOrc = rand(1, 6);
-                if ($tryWarrior < $tryOrc) {
+
+                if ($tryWarrior > $tryOrc) {
                     $_SESSION['whoStarts'] = "Le Guerrier commence !";
-                    $_SESSION['fightWarrior'] = "";
-                } elseif ($tryOrc < $tryWarrior) {
+                    $_SESSION['first'] = "warrior";
+                } elseif ($tryOrc > $tryWarrior) {
                     $_SESSION['whoStarts'] = "L'Orc commence !";
+                    $_SESSION['first'] = "orc";
                 } else {
-                    $_SESSION['whoStarts'] = "Egalité, relancez le dé";
+                    $_SESSION['whoStarts'] = "Égalité, relancez le dé";
                 }
-
-
-
                 break;
 
             case 'battle':
-                if (isset($_SESSION['fightWarrior'])) {
-                    $_SESSION['fightWarriorGo'] = "";
-                }
+                if (isset($_SESSION['warrior']) && isset($_SESSION['orc']) && isset($_SESSION['first'])) {
+                    $warrior = $_SESSION['warrior'];
+                    $orc = $_SESSION['orc'];
 
+                    $battleLog = [];
+
+                    // Condition while
+                    while ($warrior->getHealth() > 0 && $orc->getHealth() > 0) {
+                        if ($_SESSION['first'] === "warrior") {
+                            // Guerrier attaque
+                            $damage = $warrior->getweaponDamage();
+                            $orc->getDamageOrc($damage);
+                            $battleLog[] = "<p class='text-primary'>⚔️ Le Guerrier attaque avec une frappe de $damage 💥</p>";
+                            $battleLog[] = "<p>L’Orc n’a plus que " . $orc->getHealth() . " ❤️</p>";
+
+                            if ($orc->getHealth() <= 0) break;
+
+                            // Orc attaque
+                            $orcDamage = $orc->attack();
+                            $absorbed = $warrior->getDamage($orcDamage);
+                            $battleLog[] = "<p class='text-danger'>💥 L’Orc attaque avec $orcDamage dégâts !</p>";
+                            $battleLog[] = "<p>Le bouclier du Guerrier absorbe $absorbed 🛡️</p>";
+                            $battleLog[] = "<p>Le Guerrier n’a plus que " . $warrior->getHealth() . " ❤️</p>";
+                        } elseif ($_SESSION['first'] === "orc") {
+                            // Orc attaque
+                            $orcDamage = $orc->attack();
+                            $absorbed = $warrior->getDamage($orcDamage);
+                            $battleLog[] = "<p class='text-danger'>💥 L’Orc attaque avec $orcDamage dégâts !</p>";
+                            $battleLog[] = "<p>Le bouclier du Guerrier absorbe $absorbed 🛡️</p>";
+                            $battleLog[] = "<p>Le Guerrier n’a plus que " . $warrior->getHealth() . " ❤️</p>";
+
+                            if ($warrior->getHealth() <= 0) break;
+
+                            // Guerrier attaque
+                            $damage = $warrior->getweaponDamage();
+                            $orc->getDamageOrc($damage);
+                            $battleLog[] = "<p class='text-primary'>⚔️ Le Guerrier attaque avec une frappe de $damage 💥</p>";
+                            $battleLog[] = "<p>L’Orc n’a plus que " . $orc->getHealth() . " ❤️</p>";
+                        }
+                    }
+
+                    // Annoncer le gagnant
+                    if ($warrior->getHealth() <= 0) {
+                        $battleLog[] = "<h3 class='text-danger text-center'>☠️ Le Guerrier est tombé... L'Orc gagne 🏆</h3>";
+                    } elseif ($orc->getHealth() <= 0) {
+                        $battleLog[] = "<h3 class='text-success text-center'>🎉 L'Orc est vaincu ! Le Guerrier triomphe 🏆</h3>";
+                    }
+
+                    $_SESSION['battleLog'] = $battleLog;
+                }
                 break;
 
             case 'reset':
-                header("Location: reset.php");
-                break;
-
-            default:
-                break;
+                session_destroy();
+                header("Location: index.php");
+                exit;
         }
     }
 }
@@ -72,13 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>index.php</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Battle Drome</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-light">
     <header>
         <nav class="navbar navbar-expand-lg bg-dark">
             <div class="container-fluid">
@@ -95,42 +127,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </nav>
     </header>
 
-    <main class="min-vh-100 container border">
+    <main class="container py-4 min-vh-100">
 
-        <div class="d-flex justify-content-center m-2">
-
-            <form action="" method="POST">
+        <div class="d-flex justify-content-center mb-4">
+            <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="create-warrior">
-                <button type="submit" class="btn btn-dark text-light m-2">Créer un Guerrier</button>
+                <button class="btn btn-primary">Créer un Guerrier</button>
             </form>
 
-            <form action="" method="POST">
+            <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="create-orc">
-                <button type="submit" class="btn btn-dark text-light m-2">Créer un Orc</button>
+                <button class="btn btn-success">Créer un Orc</button>
             </form>
 
-            <form action="" method="POST">
+            <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="decide">
-                <button type="submit" class="btn btn-secondary text-light m-2">Qui commence ?</button>
+                <button class="btn btn-secondary">Qui commence ?</button>
             </form>
 
-            <form action="" method="POST">
+            <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="battle">
-                <button type="submit" class="btn btn-danger text-light m-2">Fight !</button>
+                <button class="btn btn-danger">Fight !</button>
             </form>
 
-            <form action="" method="POST">
+            <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="reset">
-                <button type="submit" class="btn btn-danger text-light m-2">Reset le combat</button>
+                <button class="btn btn-dark">Reset</button>
             </form>
-
         </div>
 
+        <?php if (isset($_SESSION['whoStarts'])): ?>
 
-        <?php if (isset($_SESSION['whoStarts'])) { ?>
-            <p class="text-center m-4"><b><?= $_SESSION['whoStarts'] ?></b></p>
-        <?php } ?>
+            <p class="text-center fw-bold"><?= $_SESSION['whoStarts'] ?></p>
 
+        <?php endif; ?>
 
         <div class="d-flex justify-content-around">
 
@@ -153,14 +183,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php } ?>
 
 
-            <!-- Box du déroulé du combat -->
-
-
-
-
-
-
-
+            <!-- Etapes du combat -->
+            <?php if (isset($_SESSION['battleLog'])): ?>
+                <div class="card shadow p-3">
+                    <?php foreach ($_SESSION['battleLog'] as $line): ?>
+                        <?= $line ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
 
             <!-- Box de l'Orc -->
             <?php
@@ -186,30 +216,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     </main>
 
-
-    <?php
-    if (isset($_SESSION['fightWarriorGo'])) { ?>
-
-        <?php while ($_SESSION['warrior']->getHealth() >= 0 && $_SESSION['orc']->getHealth() >= 0) { ?>
-            <div class="mt-4 text-center">
-                <div class="">
-                    <p>Le Guerrier lance une attaque de <?= $_SESSION['warrior']->getweaponDamage() ?> de dégâts ! ⚔️</p>
-                    <p>L'Orc n'a plus que <?= $_SESSION['orc']->getHealth($_SESSION['warrior']->getweaponDamage()) ?> ❤️</p>
-                </div>
-                <div class="mb-5">
-                    <p>L'Orc lance une attaque de <?= $_SESSION['orc']->attack() ?> de dégâts ! 💥</p>
-                    <p>Le bouclier du Guerrier absorbe <?= $_SESSION['warrior']->getDamage($_SESSION['orc']->attack()) ?> 🛡️</p>
-                    <p>Le Guerrier n'a plus que <?= $_SESSION['warrior']->getHealth() ?> ❤️</p>
-                </div>
-            </div>
-        <?php } ?>
-    <?php } ?>
-
-    <footer class="mt-auto d-flex justify-content-center bg-dark">
-        <h2 class="text-light">BATTLE DROME</h2>
+    <footer class="bg-dark text-light text-center py-3">
+        <h5>BATTLE DROME</h5>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 </body>
 
 </html>
