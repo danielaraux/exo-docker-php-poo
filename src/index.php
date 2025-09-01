@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         switch ($_POST['action']) {
             case 'create-warrior':
                 if (!isset($_SESSION['warrior'])) {
-                    $warrior = new Guerrier(2000, 500, "Epée Modeste", 250, "Bouclier Rustique", 100);
+                    $warrior = new Guerrier(1000, 500, "Epée Modeste", 200, "Bouclier Rustique", 100);
                     $_SESSION['warrior'] = $warrior;
                 }
                 break;
@@ -45,6 +45,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     $battleLog = [];
 
+
+                    // CORRECTION du BATTLE : Il fallait faire une fonction battle en réutilisant nos set et getHealth()
+                    // function battleWarriorStart($warrior, $orc) {
+                    // $orc->setHealth($orc->getHealth() - $warrior->attack());
+                    // $warrior->getDamage($orc->attack());
+                    // }
+
+                    // CORRECTION du BATTLE : Logs - Les logs sont les messages qu'on affiche lorsque un personnage inflige des dégâts ou en reçoit
+
                     // Condition while
                     while ($warrior->getHealth() > 0 && $orc->getHealth() > 0) {
                         if ($_SESSION['first'] === "warrior") {
@@ -52,23 +61,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $damage = $warrior->getweaponDamage();
                             $orc->getDamageOrc($damage);
                             $battleLog[] = "<p class='text-primary'>⚔️ Le Guerrier attaque avec une frappe de $damage 💥</p>";
-                            $battleLog[] = "<p>L’Orc n’a plus que " . $orc->getHealth() . " ❤️</p>";
+                            $battleLog[] = "<p>L'Orc n'a plus que " . $orc->getHealth() . " ❤️</p>";
 
                             if ($orc->getHealth() <= 0) break;
 
                             // Orc attaque
                             $orcDamage = $orc->attack();
                             $absorbed = $warrior->getDamage($orcDamage);
-                            $battleLog[] = "<p class='text-danger'>💥 L’Orc attaque avec $orcDamage dégâts !</p>";
+                            $battleLog[] = "<p class='text-danger'>💥 L'Orc attaque avec $orcDamage dégâts !</p>";
                             $battleLog[] = "<p>Le bouclier du Guerrier absorbe $absorbed 🛡️</p>";
-                            $battleLog[] = "<p>Le Guerrier n’a plus que " . $warrior->getHealth() . " ❤️</p>";
+                            $battleLog[] = "<p>Le Guerrier n'a plus que " . $warrior->getHealth() . " ❤️</p>";
                         } elseif ($_SESSION['first'] === "orc") {
                             // Orc attaque
                             $orcDamage = $orc->attack();
                             $absorbed = $warrior->getDamage($orcDamage);
-                            $battleLog[] = "<p class='text-danger'>💥 L’Orc attaque avec $orcDamage dégâts !</p>";
+                            $battleLog[] = "<p class='text-danger'>💥 L'Orc attaque avec $orcDamage dégâts !</p>";
                             $battleLog[] = "<p>Le bouclier du Guerrier absorbe $absorbed 🛡️</p>";
-                            $battleLog[] = "<p>Le Guerrier n’a plus que " . $warrior->getHealth() . " ❤️</p>";
+                            $battleLog[] = "<p>Le Guerrier n'a plus que " . $warrior->getHealth() . " ❤️</p>";
 
                             if ($warrior->getHealth() <= 0) break;
 
@@ -76,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $damage = $warrior->getweaponDamage();
                             $orc->getDamageOrc($damage);
                             $battleLog[] = "<p class='text-primary'>⚔️ Le Guerrier attaque avec une frappe de $damage 💥</p>";
-                            $battleLog[] = "<p>L’Orc n’a plus que " . $orc->getHealth() . " ❤️</p>";
+                            $battleLog[] = "<p>L'Orc n'a plus que " . $orc->getHealth() . " ❤️</p>";
                         }
                     }
 
@@ -108,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Battle Drome</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body class="bg-light">
@@ -127,32 +137,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </nav>
     </header>
 
-    <main class="container py-4 min-vh-100">
+    <main class="container py-4">
 
         <div class="d-flex justify-content-center mb-4">
             <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="create-warrior">
-                <button class="btn btn-primary">Créer un Guerrier</button>
+                <button class="btn btn-primary">Créer un Guerrier ⚔️</button>
             </form>
 
             <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="create-orc">
-                <button class="btn btn-success">Créer un Orc</button>
+                <button class="btn btn-success">Créer un Orc 👹</button>
             </form>
 
             <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="decide">
-                <button class="btn btn-secondary">Qui commence ?</button>
+                <button class="btn btn-secondary">Qui commence ? 🎲</button>
             </form>
 
             <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="battle">
-                <button class="btn btn-danger">Fight !</button>
+                <button class="btn btn-danger">Fight ! 💥</button>
             </form>
 
             <form method="POST" class="m-2">
                 <input type="hidden" name="action" value="reset">
-                <button class="btn btn-dark">Reset</button>
+                <button class="btn btn-dark">Reset 🔄</button>
             </form>
         </div>
 
@@ -185,8 +195,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <!-- Etapes du combat -->
             <?php if (isset($_SESSION['battleLog'])): ?>
-                <div class="card shadow p-3">
-                    <?php foreach ($_SESSION['battleLog'] as $line): ?>
+                <div class="textArea card shadow p-3">
+
+                    <!-- Je met un array_reverse pour afficher les derniers messages en premier -->
+                    <?php foreach (array_reverse($_SESSION['battleLog']) as $line): ?>
                         <?= $line ?>
                     <?php endforeach; ?>
                 </div>
@@ -206,7 +218,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <p class="card-text"><b>Mana :</b> <?= $_SESSION['orc']->getMana() ?></p>
                         <p class="card-text"><b>Dégats Min :</b> <?= $_SESSION['orc']->getdamageMin() ?></p>
                         <p class="card-text"><b>Dégats Max :</b> <?= $_SESSION['orc']->getdamageMax() ?></p>
-                        <p class="card-text"><b>Dégats infligés :</b> <?= $_SESSION['orc']->attack() ?></p>
                     </div>
                 </div>
         </div>
@@ -216,7 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     </main>
 
-    <footer class="bg-dark text-light text-center py-3">
+    <footer class="bg-dark text-light text-center py-3 fixed-bottom">
         <h5>BATTLE DROME</h5>
     </footer>
 </body>
